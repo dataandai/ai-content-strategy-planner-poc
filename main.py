@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import random
-from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="AI Content Strategy API")
+app = FastAPI(title="AI Content Strategy Planner API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,39 +16,52 @@ app.add_middleware(
 
 class StrategyRequest(BaseModel):
     niche: str
+    audience: str
     goal: str
-    platform: str
 
-class ContentIdea(BaseModel):
-    title: str
-    description: str
+class ContentItem(BaseModel):
+    day: int
+    topic: str
     format: str
-    priority: str
+    objective: str
 
-@app.post("/generate-strategy", response_model=List[ContentIdea])
+class StrategyResponse(BaseModel):
+    strategy_name: str
+    pillars: List[str]
+    schedule: List[ContentItem]
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "AI Content Strategy Engine Ready"}
+
+@app.post("/api/generate-strategy", response_model=StrategyResponse)
 async def generate_strategy(req: StrategyRequest):
-    # Mock AI Logic: In production, this would call OpenAI/Anthropic
-    formats = ["Video Reel", "Carousel", "Long-form Article", "Thread", "Newsletter"]
-    priorities = ["High", "Medium", "Low"]
+    if not req.niche:
+        raise HTTPException(status_code=400, detail="Niche is required")
     
-    templates = [
-        {"title": f"Ultimate Guide to {req.niche}", "desc": f"An educational deep dive focused on {req.goal}."},
-        {"title": f"5 Common Mistakes in {req.niche}", "desc": "Common pitfalls and how to avoid them."} ,
-        {"title": f"{req.niche} Transformation Journey", "desc": f"Case study showing results related to {req.goal}."},
-        {"title": f"Future Trends: {req.niche} 2025", "desc": "Predictive analysis and industry shifts."},
-        {"title": f"Behind the Scenes: {req.niche} Workflow", "desc": "Transparency-building content for the audience."}
+    pillars = [
+        f"Educational insights for {req.audience}",
+        f"Behind-the-scenes of {req.niche}",
+        f"Community building & engagement",
+        f"Product/Service deep dives"
     ]
-
-    results = []
-    for item in templates:
-        results.append(ContentIdea(
-            title=item["title"],
-            description=item["desc"],
-            format=random.choice(formats),
-            priority=random.choice(priorities)
-        ))
     
-    return results
+    formats = ["Short-form Video", "LinkedIn Carousel", "Blog Post", "Twitter Thread"]
+    
+    schedule = []
+    for i in range(1, 8):
+        schedule.append(ContentItem(
+            day=i,
+            topic=f"Mastering {req.niche}: Part {i}",
+            format=random.choice(formats),
+            objective=req.goal
+        ))
+
+    return StrategyResponse(
+        strategy_name=f"The {req.niche} Growth Blueprint",
+        pillars=pillars,
+        schedule=schedule
+    )
 
 if __name__ == "__main__":
     import uvicorn

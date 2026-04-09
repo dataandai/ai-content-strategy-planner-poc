@@ -1,14 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import random
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="AI Content Strategy API")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -16,43 +17,38 @@ app.add_middleware(
 class StrategyRequest(BaseModel):
     niche: str
     goal: str
-    platforms: List[str]
-
-class ContentItem(BaseModel):
-    id: int
-    title: str
-    type: str
     platform: str
-    pillar: str
 
-class StrategyResponse(BaseModel):
-    pillars: List[str]
-    content_plan: List[ContentItem]
-    executive_summary: str
+class ContentIdea(BaseModel):
+    title: str
+    description: str
+    format: str
+    priority: str
 
-@app.post("/api/generate", response_model=StrategyResponse)
+@app.post("/generate-strategy", response_model=List[ContentIdea])
 async def generate_strategy(req: StrategyRequest):
-    if not req.niche or not req.goal:
-        raise HTTPException(status_code=400, detail="Niche and Goal are required")
+    # Mock AI Logic: In production, this would call OpenAI/Anthropic
+    formats = ["Video Reel", "Carousel", "Long-form Article", "Thread", "Newsletter"]
+    priorities = ["High", "Medium", "Low"]
     
-    pillars = [f"Educational {req.niche}", f"Behind the Scenes", f"Community Building", f"Product Spotlight"]
-    
-    content_plan = []
-    for i in range(1, 7):
-        platform = random.choice(req.platforms) if req.platforms else "General"
-        content_plan.append({
-            "id": i,
-            "title": f"How to master {req.niche} in 2024",
-            "type": "Short Video" if "TikTok" in req.platforms else "Blog Post",
-            "platform": platform,
-            "pillar": random.choice(pillars)
-        })
+    templates = [
+        {"title": f"Ultimate Guide to {req.niche}", "desc": f"An educational deep dive focused on {req.goal}."},
+        {"title": f"5 Common Mistakes in {req.niche}", "desc": "Common pitfalls and how to avoid them."} ,
+        {"title": f"{req.niche} Transformation Journey", "desc": f"Case study showing results related to {req.goal}."},
+        {"title": f"Future Trends: {req.niche} 2025", "desc": "Predictive analysis and industry shifts."},
+        {"title": f"Behind the Scenes: {req.niche} Workflow", "desc": "Transparency-building content for the audience."}
+    ]
 
-    return {
-        "pillars": pillars,
-        "content_plan": content_plan,
-        "executive_summary": f"For a {req.niche} brand focusing on {req.goal}, we recommend a 70/20/10 split between value-based educational content and direct conversion-driven posts."
-    }
+    results = []
+    for item in templates:
+        results.append(ContentIdea(
+            title=item["title"],
+            description=item["desc"],
+            format=random.choice(formats),
+            priority=random.choice(priorities)
+        ))
+    
+    return results
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,158 +1,130 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Sparkles, 
   LayoutDashboard, 
-  Calendar, 
-  PieChart, 
-  ArrowRight, 
-  CheckCircle2, 
-  Layers,
-  Loader2
+  BarChart3, 
+  Settings, 
+  Plus, 
+  Target, 
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 
-export default function Dashboard() {
-  const [niche, setNiche] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [strategy, setStrategy] = useState<any>(null);
-
-  const handleGenerate = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('http://localhost:8000/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          niche, 
-          goal: 'Brand Growth', 
-          platforms: ['LinkedIn', 'Instagram', 'Twitter'] 
-        }),
-      });
-      const data = await res.json();
-      setStrategy(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen flex text-slate-200">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-800 p-6 flex flex-col gap-8">
-        <div className="flex items-center gap-2 font-bold text-xl text-indigo-400">
-          <Sparkles className="w-6 h-6" />
-          <span>Stratos AI</span>
+      <aside className="w-64 border-r border-white/10 p-6 flex flex-col gap-8 hidden lg:flex">
+        <div className="flex items-center gap-2 font-bold text-xl text-accent">
+          <Sparkles size={24} />
+          <span>StratAI</span>
         </div>
         <nav className="flex flex-col gap-2">
-          <button className="flex items-center gap-3 px-3 py-2 bg-slate-900 rounded-lg text-indigo-400 font-medium">
-            <LayoutDashboard size={18} /> Dashboard
-          </button>
-          <button className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white transition-colors">
-            <Calendar size={18} /> Schedule
-          </button>
-          <button className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white transition-colors">
-            <PieChart size={18} /> Analytics
-          </button>
+          <NavItem icon={<LayoutDashboard size={18}/>} label="Dashboard" active />
+          <NavItem icon={<Calendar size={18}/>} label="Calendar" />
+          <NavItem icon={<BarChart3 size={18}/>} label="Analytics" />
+          <NavItem icon={<Settings size={18}/>} label="Settings" />
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <header className="mb-10">
-          <h1 className="text-3xl font-bold mb-2">Content Strategy Planner</h1>
-          <p className="text-slate-400">Generate high-converting content roadmaps in seconds.</p>
+        <header className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+              Content Strategy Planner
+            </h1>
+            <p className="text-slate-400 mt-1">Generate high-performance content pipelines in seconds.</p>
+          </div>
+          <button className="bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+            <Plus size={18} />
+            New Strategy
+          </button>
         </header>
 
+        {/* Planner UI Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Input Section */}
-          <section className="lg:col-span-1">
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4">Strategy Parameters</h2>
+          <div className="lg:col-span-1 space-y-6">
+            <div className="glass-panel p-6 rounded-2xl">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Target size={18} className="text-accent"/> Parameters
+              </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-slate-400 mb-1">Industry/Niche</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. SaaS, Fitness, Coffee"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-                    value={niche}
-                    onChange={(e) => setNiche(e.target.value)}
-                  />
+                  <label className="block text-xs uppercase tracking-wider text-slate-500 mb-2 font-bold">Niche</label>
+                  <input type="text" placeholder="e.g. Fintech SaaS" className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none focus:ring-1 focus:ring-accent" />
                 </div>
-                <button 
-                  onClick={handleGenerate}
-                  disabled={loading || !niche}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
-                >
-                  {loading ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
-                  {loading ? 'Analyzing...' : 'Generate Roadmap'}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-slate-500 mb-2 font-bold">Primary Goal</label>
+                  <select className="w-full bg-white/5 border border-white/10 rounded-lg p-3 focus:outline-none">
+                    <option>Lead Generation</option>
+                    <option>Brand Awareness</option>
+                    <option>Product Education</option>
+                  </select>
+                </div>
+                <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl font-medium transition-all">
+                  Update Strategy
                 </button>
               </div>
             </div>
-          </section>
+          </div>
 
-          {/* Result Section */}
-          <section className="lg:col-span-2">
-            {!strategy ? (
-              <div className="h-64 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center text-slate-500">
-                <Layers className="mb-2 opacity-20" size={48} />
-                <p>Results will appear here after generation</p>
-              </div>
-            ) : (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Executive Summary */}
-                <div className="bg-indigo-900/10 border border-indigo-500/30 p-6 rounded-2xl">
-                  <h3 className="text-indigo-400 font-bold mb-2 flex items-center gap-2">
-                    <CheckCircle2 size={18} /> Executive Strategy
-                  </h3>
-                  <p className="text-slate-300 leading-relaxed">{strategy.executive_summary}</p>
-                </div>
-
-                {/* Pillars */}
-                <div className="grid grid-cols-2 gap-4">
-                  {strategy.pillars.map((pillar: string, idx: number) => (
-                    <div key={idx} className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                      <span className="text-xs text-indigo-400 font-bold uppercase tracking-wider">Pillar {idx + 1}</span>
-                      <p className="font-medium mt-1">{pillar}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Content Plan */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-800/50 text-slate-400 text-sm">
-                      <tr>
-                        <th className="px-6 py-3">Content Title</th>
-                        <th className="px-6 py-3">Platform</th>
-                        <th className="px-6 py-3">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {strategy.content_plan.map((item: any) => (
-                        <tr key={item.id} className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors">
-                          <td className="px-6 py-4 font-medium">{item.title}</td>
-                          <td className="px-6 py-4 text-slate-400 text-sm">
-                            <span className="bg-slate-800 px-2 py-1 rounded">{item.platform}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1">
-                              Review <ArrowRight size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </section>
+          <div className="lg:col-span-2 space-y-4">
+            <h3 className="text-lg font-semibold">Recommended Content Roadmap</h3>
+            <StrategyCard 
+              title="The Future of Decentralized Finance"
+              desc="A deep dive into how 2025 will change retail banking accessibility."
+              tag="Video Reel"
+              priority="High"
+            />
+            <StrategyCard 
+              title="5 Mistakes SaaS Founders Make with SEO"
+              desc="Educational carousel highlighting common organic growth pitfalls."
+              tag="Carousel"
+              priority="Medium"
+            />
+            <StrategyCard 
+              title="Scaling Content with AI Agents"
+              desc="Process-oriented blog post with actionable code snippets."
+              tag="Article"
+              priority="High"
+            />
+          </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
+  return (
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-colors ${
+      active ? 'bg-accent/10 text-accent' : 'hover:bg-white/5 text-slate-400'
+    }`}>
+      {icon}
+      <span className="font-medium">{label}</span>
+    </div>
+  );
+}
+
+function StrategyCard({ title, desc, tag, priority }: any) {
+  return (
+    <div className="glass-panel p-5 rounded-2xl group hover:border-accent/40 transition-all cursor-pointer flex items-center justify-between">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-accent/20 text-accent tracking-tighter">
+            {tag}
+          </span>
+          <span className={`text-[10px] font-bold uppercase tracking-tighter ${
+            priority === 'High' ? 'text-orange-400' : 'text-blue-400'
+          }`}>
+            {priority} Priority
+          </span>
+        </div>
+        <h4 className="text-lg font-bold">{title}</h4>
+        <p className="text-slate-400 text-sm max-w-lg">{desc}</p>
+      </div>
+      <ChevronRight className="text-slate-600 group-hover:text-accent transition-colors" size={20} />
     </div>
   );
 }
